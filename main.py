@@ -194,29 +194,29 @@ def main():
     # Portas Lógicas
     # --------------------------
 
-    # test_logic_gate(
-    #     "AND",
-    #     load_and,
-    #     hidden_size=2
-    # )
+    test_logic_gate(
+        "AND",
+        load_and,
+        hidden_size=2
+    )
 
-    # test_logic_gate(
-    #     "OR",
-    #     load_or,
-    #     hidden_size=2
-    # )
+    test_logic_gate(
+        "OR",
+        load_or,
+        hidden_size=2
+    )
 
-    # test_logic_gate(
-    #     "XOR",
-    #     load_xor,
-    #     hidden_size=4
-    # )
+    test_logic_gate(
+        "XOR",
+        load_xor,
+        hidden_size=4
+    )
 
     # --------------------------
     # Fausett
     # --------------------------
 
-    # test_fausett()
+    test_fausett()
 
     # --------------------------
     # Caracteres Completo
