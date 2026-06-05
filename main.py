@@ -217,13 +217,13 @@ def main():
     # Fausett
     # --------------------------
 
-    test_fausett()
+    # test_fausett()
 
     # --------------------------
     # Caracteres Completo
     # --------------------------
 
-    test_character_complete()
+    # test_character_complete()
 
 
 if __name__ == "__main__":
