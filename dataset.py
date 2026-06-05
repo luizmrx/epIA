@@ -214,34 +214,43 @@ def load_character_complete(
 
 def load_fausett(filename):
     """
-    Dataset de caracteres da Fausett.
+    Dataset Fausett
 
-    Assumimos que cada linha
-    representa uma classe.
-
-    21 linhas -> 21 classes
+    Estrutura:
+        63 entradas
+         7 saídas
     """
 
     path = DATA_DIR / filename
 
-    X = np.loadtxt(
+    data = np.loadtxt(
         path,
-        delimiter=","
+        delimiter=",",
+        encoding="utf-8-sig"
     )
 
-    num_classes = X.shape[0]
+    X = data[:, :63]
 
-    Y = np.eye(num_classes)
+    Y = data[:, 63:]
+    Y = np.where(
+        Y == -1,
+        0,
+        1
+    )  
+
+    print("X:", X.shape)
+    print("Y:", Y.shape)
+    print(Y[:5])
 
     return X, Y
 
 
 def load_fausett_clean():
-    return load_fausett("caracteres_limpo.csv")
+    return load_fausett("caracteres-limpo.csv")
 
 
 def load_fausett_noise():
-    return load_fausett("caracteres_ruido.csv")
+    return load_fausett("caracteres-ruido.csv")
 
 
 def load_fausett_noise20():
