@@ -167,45 +167,30 @@ def load_xor():
 # ==========================================================
 
 def load_character_complete(
-    x_file="X.txt",
-    y_file="Y_letra.txt"
+    x_file="X.npy",
+    y_file="Y_classe.npy"
 ):
-    """
-    Carrega o dataset CARACTERES COMPLETO.
-
-    X.txt:
-        atributos (120 pixels)
-
-    Y_letra.txt:
-        letras A-Z
-    """
 
     x_path = DATA_DIR / x_file
     y_path = DATA_DIR / y_file
 
-    X = np.loadtxt(
+    X = np.load(
         x_path,
-        delimiter=","
+        allow_pickle=True
     )
 
-    with open(y_path, "r", encoding="utf-8") as file:
+    Y = np.load(
+        y_path,
+        allow_pickle=True
+    )
 
-        labels = [
-            line.strip()
-            for line in file
-            if line.strip()
-        ]
+    # (1326,10,12,1) -> (1326,120)
+    X = X.reshape(
+        X.shape[0],
+        -1
+    )
 
-    if len(X) != len(labels):
-        raise ValueError(
-            f"Quantidade de amostras diferente: "
-            f"X={len(X)} "
-            f"Y={len(labels)}"
-        )
-
-    Y, label_map = one_hot_encode(labels)
-
-    return X, Y, label_map
+    return X, Y, None
 
 
 # ==========================================================
