@@ -188,7 +188,10 @@ def load_character_complete(
     X = X.reshape(
         X.shape[0],
         -1
-    )
+    ).astype(np.float64)
+
+    if X.max() > 1:
+        X = X / 255.0
 
     return X, Y, None
 

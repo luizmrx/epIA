@@ -108,6 +108,8 @@ def train_network(
     mlp,
     X_train,
     Y_train,
+    X_val=None,
+    Y_val=None,
     epochs=1000
 ):
     """
@@ -119,12 +121,16 @@ def train_network(
     history = mlp.train(
         X_train,
         Y_train,
+        X_val=X_val,
+        Y_val=Y_val,
         epochs=epochs
     )
 
     save_final_weights(mlp)
 
     save_error_history(history)
+
+    save_hyperparameters(mlp)
 
     return history
 
@@ -254,3 +260,33 @@ def save_confusion_matrix(matrix):
         delimiter=",",
         fmt="%d"
     )
+
+def save_hyperparameters(
+    mlp,
+    filename="results/hyperparameters.txt"
+):
+
+    with open(filename, "w", encoding="utf-8") as f:
+
+        f.write("HIPERPARÂMETROS DA REDE\n")
+        f.write("=" * 40 + "\n\n")
+
+        f.write(
+            f"Entradas: {mlp.input_size}\n"
+        )
+
+        f.write(
+            f"Oculta: {mlp.hidden_size}\n"
+        )
+
+        f.write(
+            f"Saídas: {mlp.output_size}\n"
+        )
+
+        f.write(
+            f"Learning Rate: {mlp.learning_rate}\n"
+        )
+
+        f.write(
+            "Inicialização: Xavier Uniforme\n"
+        )

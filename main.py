@@ -9,12 +9,15 @@ Executa:
 2. Caracteres Fausett
 3. Caracteres Completo
 """
+import numpy as np
 
 from dataset import (
     load_and,
     load_or,
     load_xor,
     load_fausett_clean,
+    load_fausett_noise,
+    load_fausett_noise20,
     load_character_complete,
     train_validation_test_split
 )
@@ -27,6 +30,8 @@ from train import (
     save_predictions,
     save_confusion_matrix
 )
+
+from test_mesa import test_mesa
 
 
 # ==================================================
@@ -75,6 +80,70 @@ def test_logic_gate(
 # FAUSETT
 # ==================================================
 
+def test_hidden_sizes():
+
+    print("\nTESTE DE NEURÔNIOS OCULTOS")
+
+    X, Y = load_fausett_clean()
+
+    for hidden in [5,10,15,20,25,30]:
+
+        print(f"\nOculta = {hidden}")
+
+        mlp = MLP(
+            input_size=63,
+            hidden_size=hidden,
+            output_size=7,
+            learning_rate=0.1
+        )
+
+        train_network(
+            mlp,
+            X,
+            Y,
+            epochs=3000
+        )
+
+        pred = mlp.predict_class(X)
+
+        real = np.argmax(Y, axis=1)
+
+        acc = np.mean(pred == real)
+
+        print(f"Acurácia = {acc:.4f}")
+
+def test_learning_rates():
+
+    print("\nTESTE DE LEARNING RATE")
+
+    X, Y = load_fausett_clean()
+
+    for lr in [0.01, 0.05, 0.1, 0.3, 0.5]:
+
+        print(f"\nLearning Rate = {lr}")
+
+        mlp = MLP(
+            input_size=63,
+            hidden_size=25,
+            output_size=7,
+            learning_rate=lr
+        )
+
+        train_network(
+            mlp,
+            X,
+            Y,
+            epochs=3000
+        )
+
+        pred = mlp.predict_class(X)
+
+        real = np.argmax(Y, axis=1)
+
+        acc = np.mean(pred == real)
+
+        print(f"Acurácia = {acc:.4f}")
+
 def test_fausett():
 
     print("\n" + "=" * 50)
@@ -86,9 +155,9 @@ def test_fausett():
     print(Y.shape)
 
     mlp = MLP(
-        input_size=X.shape[1],
+        input_size=63,
         hidden_size=15,
-        output_size=Y.shape[1],
+        output_size=7,
         learning_rate=0.1
     )
 
@@ -101,13 +170,81 @@ def test_fausett():
 
     predictions = mlp.predict_class(X)
 
-    accuracy = (
-        predictions ==
-        range(len(predictions))
-    ).mean()
+    true_labels = np.argmax(Y, axis=1)
+
+    accuracy = np.mean(
+        predictions == true_labels
+    )
 
     print(f"\nAcurácia: {accuracy:.4f}")
 
+def test_fausett_noise():
+
+    print("\n" + "=" * 50)
+    print("TESTE DE ROBUSTEZ AO RUÍDO")
+    print("=" * 50)
+
+    # Treinamento com dataset limpo
+    X_train, Y_train = load_fausett_clean()
+
+    mlp = MLP(
+        input_size=63,
+        hidden_size=15,
+        output_size=7,
+        learning_rate=0.1
+    )
+
+    train_network(
+        mlp,
+        X_train,
+        Y_train,
+        epochs=3000
+    )
+
+    # Teste com dataset ruidoso
+    X_noise, Y_noise = load_fausett_noise()
+
+    pred = mlp.predict_class(X_noise)
+
+    real = np.argmax(Y_noise, axis=1)
+
+    acc = np.mean(pred == real)
+
+    print(f"Acurácia ruído = {acc:.4f}")
+
+def test_fausett_noise20():
+
+    print("\n" + "=" * 50)
+    print("TESTE DE ROBUSTEZ AO RUÍDO 20")
+    print("=" * 50)
+
+    # Treinamento com dataset limpo
+    X_train, Y_train = load_fausett_clean()
+
+    mlp = MLP(
+        input_size=63,
+        hidden_size=15,
+        output_size=7,
+        learning_rate=0.1
+    )
+
+    train_network(
+        mlp,
+        X_train,
+        Y_train,
+        epochs=3000
+    )
+
+    # Teste com dataset ruidoso
+    X_noise, Y_noise = load_fausett_noise20()
+
+    pred = mlp.predict_class(X_noise)
+
+    real = np.argmax(Y_noise, axis=1)
+
+    acc = np.mean(pred == real)
+
+    print(f"Acurácia ruído = {acc:.4f}")
 
 # ==================================================
 # CARACTERES COMPLETO
@@ -143,7 +280,7 @@ def test_character_complete():
 
     mlp = MLP(
         input_size=120,
-        hidden_size=30,
+        hidden_size=120,
         output_size=26,
         learning_rate=0.1
     )
@@ -152,8 +289,14 @@ def test_character_complete():
         mlp,
         X_train,
         Y_train,
-        epochs=3000
+        X_val,
+        Y_val,
+        epochs=20000
     )
+
+    print("\nErro inicial:", history[0])
+    print("Erro final:", history[-1])
+    print("Épocas executadas:", len(history))
 
     results = evaluate_network(
         mlp,
@@ -183,6 +326,108 @@ def test_character_complete():
         "Predições salvas."
     )
 
+def test_character_hidden_sizes():
+
+    print("\n" + "=" * 60)
+    print("TESTE DE NEURÔNIOS OCULTOS - CHARACTER COMPLETE")
+    print("=" * 60)
+
+    X, Y, _ = load_character_complete()
+
+    (
+        X_train,
+        Y_train,
+        X_val,
+        Y_val,
+        X_test,
+        Y_test
+    ) = train_validation_test_split(
+        X,
+        Y,
+        train_ratio=0.70,
+        validation_ratio=0.15
+    )
+
+    for hidden in [15, 30, 45, 60, 75, 90, 120, 150, 180, 210]:
+
+        print(f"\nHidden Size = {hidden}")
+
+        mlp = MLP(
+            input_size=120,
+            hidden_size=hidden,
+            output_size=26,
+            learning_rate=0.3
+        )
+
+        train_network(
+            mlp,
+            X_train,
+            Y_train,
+            epochs=10000
+        )
+
+        results = evaluate_network(
+            mlp,
+            X_test,
+            Y_test
+        )
+
+        print(
+            f"Acurácia = "
+            f"{results['accuracy']:.4f}"
+        )
+
+
+def test_character_learning_rates():
+
+    print("\n" + "=" * 60)
+    print("TESTE DE LEARNING RATE - CHARACTER COMPLETE")
+    print("=" * 60)
+
+    X, Y, _ = load_character_complete()
+
+    (
+        X_train,
+        Y_train,
+        X_val,
+        Y_val,
+        X_test,
+        Y_test
+    ) = train_validation_test_split(
+        X,
+        Y,
+        train_ratio=0.70,
+        validation_ratio=0.15
+    )
+
+    for lr in [0.01, 0.05, 0.1, 0.3, 0.5]:
+
+        print(f"\nLearning Rate = {lr}")
+
+        mlp = MLP(
+            input_size=120,
+            hidden_size=120,
+            output_size=26,
+            learning_rate=lr
+        )
+
+        train_network(
+            mlp,
+            X_train,
+            Y_train,
+            epochs=10000
+        )
+
+        results = evaluate_network(
+            mlp,
+            X_test,
+            Y_test
+        )
+
+        print(
+            f"Acurácia = "
+            f"{results['accuracy']:.4f}"
+        )
 
 # ==================================================
 # MAIN
@@ -191,38 +436,49 @@ def test_character_complete():
 def main():
 
     # --------------------------
+    # Teste de mesa, não utiliza nenhum dataset. Ele simplesmente reproduz exatamente o exemplo do PDF
+    # --------------------------
+    # test_mesa()
+
+    # --------------------------
     # Portas Lógicas
     # --------------------------
 
-    test_logic_gate(
-        "AND",
-        load_and,
-        hidden_size=2
-    )
+    # test_logic_gate(
+    #     "AND",
+    #     load_and,
+    #     hidden_size=2
+    # )
 
-    test_logic_gate(
-        "OR",
-        load_or,
-        hidden_size=2
-    )
+    # test_logic_gate(
+    #     "OR",
+    #     load_or,
+    #     hidden_size=2
+    # )
 
-    test_logic_gate(
-        "XOR",
-        load_xor,
-        hidden_size=4
-    )
+    # test_logic_gate(
+    #     "XOR",
+    #     load_xor,
+    #     hidden_size=4
+    # )
 
     # --------------------------
     # Fausett
     # --------------------------
 
-    test_fausett()
+    # test_hidden_sizes()
+    # test_learning_rates()
+    # test_fausett()
+    # test_fausett_noise()
+    # test_fausett_noise20()
 
     # --------------------------
     # Caracteres Completo
     # --------------------------
 
     test_character_complete()
+    # test_character_hidden_sizes()
+    # test_character_learning_rates()
 
 
 if __name__ == "__main__":

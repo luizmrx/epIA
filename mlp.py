@@ -221,9 +221,11 @@ class MLP:
     # ==================================================
 
     def train(
-        self,
+       self,
         X,
         Y,
+        X_val=None,
+        Y_val=None,
         epochs=1000,
         target_error=0.001,
         verbose=True
@@ -245,14 +247,21 @@ class MLP:
 
             history.append(error)
 
-            if (
-                verbose
-                and epoch % 100 == 0
-            ):
-                print(
-                    f"Epoch {epoch:5d} "
-                    f"| Erro = {error:.6f}"
+            if X_val is not None:
+
+                val_output = self.forward(X_val)
+
+                val_error = np.mean(
+                    (Y_val - val_output) ** 2
                 )
+
+                if verbose and epoch % 100 == 0:
+
+                    print(
+                        f"Epoch {epoch:5d} "
+                        f"| Train={error:.6f} "
+                        f"| Val={val_error:.6f}"
+                    )
 
             # Early Stopping
 

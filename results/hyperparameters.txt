@@ -1,0 +1,8 @@
+HIPERPARÂMETROS DA REDE
+========================================
+
+Entradas: 120
+Oculta: 120
+Saídas: 26
+Learning Rate: 0.1
+Inicialização: Xavier Uniforme
