@@ -221,32 +221,35 @@ class MLP:
     # ==================================================
 
     def train(
-       self,
+        self,
         X,
         Y,
         X_val=None,
         Y_val=None,
         epochs=1000,
+        patience=50,
         target_error=0.001,
         verbose=True
     ):
-        """
-        Treina a rede usando
-        Backpropagation.
-        """
 
         history = []
 
+        best_val_error = float("inf")
+        best_weights = None
+        best_epoch = 0
+        patience_counter = 0
+
         for epoch in range(epochs):
 
+            # Forward + treino
             self.forward(X)
-
             error = self.compute_error(Y)
-
             self.backward(X, Y)
-
             history.append(error)
 
+            # --------------------------
+            # Validação
+            # --------------------------
             if X_val is not None:
 
                 val_output = self.forward(X_val)
@@ -255,31 +258,52 @@ class MLP:
                     (Y_val - val_output) ** 2
                 )
 
-                if verbose and epoch % 100 == 0:
+                # salvar melhor modelo
+                if val_error < best_val_error:
 
+                    best_val_error = val_error
+                    best_weights = (
+                        self.W1.copy(),
+                        self.W2.copy(),
+                        self.b1.copy(),
+                        self.b2.copy()
+                    )
+
+                    best_epoch = epoch
+                    patience_counter = 0
+
+                else:
+                    patience_counter += 1
+
+                # log
+                if verbose and epoch % 100 == 0:
                     print(
                         f"Epoch {epoch:5d} "
                         f"| Train={error:.6f} "
                         f"| Val={val_error:.6f}"
                     )
 
-            # Early Stopping
+                # --------------------------
+                # EARLY STOPPING (patience)
+                # --------------------------
+                if patience_counter >= patience:
+                    print("\nEarly stopping acionado!")
+                    print(f"Melhor época: {best_epoch}")
+                    print(f"Val Error: {best_val_error:.6f}")
+                    break
 
+            # --------------------------
+            # Parada por erro mínimo (opcional)
+            # --------------------------
             if error <= target_error:
-
-                print(
-                    f"\nTreinamento encerrado "
-                    f"na época {epoch}"
-                )
-
-                print(
-                    f"Erro final = {error:.6f}"
-                )
-
+                print("\nErro mínimo atingido!")
                 break
 
-        self.error_history = history
+        # restaurar melhores pesos
+        if best_weights is not None:
+            self.W1, self.W2, self.b1, self.b2 = best_weights
 
+        self.error_history = history
         return history
 
     # ==================================================

@@ -110,11 +110,9 @@ def train_network(
     Y_train,
     X_val=None,
     Y_val=None,
-    epochs=1000
+    epochs=1000,
+    patience=50
 ):
-    """
-    Treina a rede e salva artefatos.
-    """
 
     save_initial_weights(mlp)
 
@@ -123,13 +121,12 @@ def train_network(
         Y_train,
         X_val=X_val,
         Y_val=Y_val,
-        epochs=epochs
+        epochs=epochs,
+        patience=patience
     )
 
     save_final_weights(mlp)
-
     save_error_history(history)
-
     save_hyperparameters(mlp)
 
     return history

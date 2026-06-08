@@ -291,7 +291,8 @@ def test_character_complete():
         Y_train,
         X_val,
         Y_val,
-        epochs=20000
+        epochs=50000,
+        patience=50
     )
 
     print("\nErro inicial:", history[0])
