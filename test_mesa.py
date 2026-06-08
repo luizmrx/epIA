@@ -2,6 +2,20 @@ from mlp import MLP
 import numpy as np
 
 """
+Luiz Souza Neto - 15473503
+
+André Tanikawa de Oliveira - 15048766
+
+Pedro Teixeira Guimarães - 12821669
+
+Gustavo Jun Arakaki - 14028786
+
+Renan Biruel Uema - 15486661
+
+Renan Mochizuki - 15579831
+"""
+
+"""
 test_mesa.py
 
 Teste de mesa da rede neural MLP.
