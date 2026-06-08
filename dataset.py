@@ -5,62 +5,16 @@ Responsável por carregar e preparar os datasets
 utilizados pela MLP.
 """
 
-# Quando você executar pela primeira vez:
-
-# X, Y, label_map = load_character_complete()
-# print(X.shape)
-# print(Y.shape)
-
-# anote o resultado.
-
-# Se aparecer algo como:
-
-# (1326, 120)
-# (1326, 26)
-
-# então confirmamos definitivamente que a arquitetura do trabalho será:
-
-# 120 → 30 → 26
-
-# e podemos partir para o main.py praticamente sem mais dúvidas.
-
 from pathlib import Path
 import numpy as np
 
-
+# Diretório onde estão armazenados todos os datasets utilizados
 DATA_DIR = Path("data")
 
 
 # ==========================================================
 # FUNÇÕES AUXILIARES
 # ==========================================================
-
-def one_hot_encode(labels):
-    """
-    Converte rótulos em vetores one-hot.
-
-    Exemplo:
-
-    A -> [1,0,0,...]
-    B -> [0,1,0,...]
-    """
-
-    alphabet = sorted(list(set(labels)))
-
-    label_to_index = {
-        label: idx
-        for idx, label in enumerate(alphabet)
-    }
-
-    num_classes = len(alphabet)
-
-    Y = np.zeros((len(labels), num_classes))
-
-    for i, label in enumerate(labels):
-        Y[i, label_to_index[label]] = 1
-
-    return Y, label_to_index
-
 
 def train_validation_test_split(
     X,
@@ -82,6 +36,8 @@ def train_validation_test_split(
     70% treino
     15% validação
     15% teste
+
+    Nota: o embaralhamento evita viés na divisão dos dados.
     """
 
     if shuffle:
@@ -144,6 +100,7 @@ def load_logic_dataset(filename):
     # Converte:
     # -1 -> 0
     #  1 -> 1
+    # pois a sigmoide trabalha naturalmente com saídas entre 0 e 1.
 
     Y = np.where(Y == -1, 0, 1)
 
@@ -184,7 +141,17 @@ def load_character_complete(
         allow_pickle=True
     )
 
-    # (1326,10,12,1) -> (1326,120)
+    # Cada caractere é armazenado originalmente como uma matriz
+    # 10x12. Como a MLP trabalha com vetores de entrada,
+    # cada amostra é transformada em um vetor de 120 atributos.
+    #
+    # Exemplo:
+    #
+    # (1326, 10, 12, 1)
+    #        ↓
+    # (1326, 120)
+    #
+    # onde 1326 representa o número de amostras.
     X = X.reshape(
         X.shape[0],
         -1
@@ -224,11 +191,7 @@ def load_fausett(filename):
         Y == -1,
         0,
         1
-    )  
-
-    print("X:", X.shape)
-    print("Y:", Y.shape)
-    print(Y[:5])
+    )
 
     return X, Y
 

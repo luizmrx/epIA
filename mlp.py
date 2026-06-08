@@ -1,16 +1,14 @@
 """
-mlp.py
-
-Implementação de uma Rede Neural Artificial
-Multilayer Perceptron (MLP)
+Implementação de uma Rede Neural Perceptron Multicamadas (MLP).
 
 Características:
-
-- Uma camada escondida
-- Função de ativação Sigmoid
-- Backpropagation
+- Uma camada oculta
+- Função de ativação Sigmoide
+- Treinamento por Backpropagation
 - Gradiente Descendente
-- Xavier Initialization
+- Inicialização Xavier
+
+A rede pode ser utilizada tanto para problemas de classificação binária quanto multiclasse.
 """
 
 import numpy as np
@@ -41,9 +39,14 @@ class MLP:
 
         self.learning_rate = learning_rate
 
-        # ==================================================
-        # XAVIER INITIALIZATION
-        # ==================================================
+        # Inicialização Xavier.
+        #
+        # Os pesos são inicializados com valores aleatórios
+        # dentro de um intervalo calculado a partir do número
+        # de neurônios das camadas conectadas.
+        #
+        # Essa estratégia ajuda a evitar saturação precoce
+        # dos neurônios e melhora a estabilidade do treinamento.
 
         limit_hidden = np.sqrt(
             6 / (input_size + hidden_size)
@@ -65,9 +68,10 @@ class MLP:
             (hidden_size, output_size)
         )
 
-        # ==================================================
-        # BIAS
-        # ==================================================
+        # Vetores de bias.
+        #
+        # Permitem deslocar a função de ativação,
+        # aumentando a capacidade de representação da rede.
 
         self.b1 = np.zeros(
             (1, hidden_size)
@@ -99,7 +103,21 @@ class MLP:
 
     def forward(self, X):
         """
-        Propagação para frente.
+        Executa a propagação para frente (Forward Propagation).
+
+        Fluxo:
+
+        Entrada
+        ↓
+        Camada Oculta
+        ↓
+        Sigmoide
+        ↓
+        Camada de Saída
+        ↓
+        Sigmoide
+
+        Retorna as saídas produzidas pela rede.
         """
 
         self.z_hidden = np.dot(
@@ -127,6 +145,13 @@ class MLP:
     # ==================================================
 
     def backward(self, X, Y):
+        """
+        Executa o algoritmo de Backpropagation.
+
+        Calcula os gradientes dos pesos e bias a partir
+        do erro produzido pela rede e realiza a atualização
+        dos parâmetros utilizando Gradiente Descendente.
+        """
 
         n_samples = X.shape[0]
 
@@ -134,6 +159,7 @@ class MLP:
         # Camada de saída
         # --------------------------
 
+        # Diferença entre a saída desejada e a saída produzida.
         output_error = (
             Y - self.a_output
         )
@@ -164,6 +190,7 @@ class MLP:
         # --------------------------
         # Atualização W2
         # --------------------------
+        # Atualização baseada no gradiente médio do lote.
 
         self.W2 += (
             self.learning_rate *
@@ -209,7 +236,10 @@ class MLP:
 
     def compute_error(self, Y):
         """
-        Mean Squared Error.
+        Calcula o Erro Quadrático Médio (MSE).
+
+        Utilizado para medir a diferença entre
+        a saída esperada e a saída produzida pela rede.
         """
 
         return np.mean(
@@ -285,6 +315,8 @@ class MLP:
 
                 # --------------------------
                 # EARLY STOPPING (patience)
+                # Interrompe o treinamento caso o erro de validação
+                # deixe de melhorar por várias épocas consecutivas.
                 # --------------------------
                 if patience_counter >= patience:
                     print("\nEarly stopping acionado!")
@@ -403,6 +435,10 @@ class MLP:
     # ==================================================
 
     def summary(self):
+        """
+        Exibe um resumo da arquitetura e dos
+        principais hiperparâmetros da rede.
+        """
 
         print("\n===== MLP =====")
 

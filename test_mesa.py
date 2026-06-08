@@ -1,6 +1,19 @@
 from mlp import MLP
 import numpy as np
 
+"""
+test_mesa.py
+
+Teste de mesa da rede neural MLP.
+
+O objetivo deste teste é verificar manualmente
+a execução do algoritmo Forward Propagation
+e Backpropagation utilizando pesos conhecidos.
+
+Os resultados podem ser comparados com cálculos
+realizados à mão para validar a implementação.
+"""
+
 def test_mesa():
 
     print("\n" + "=" * 50)

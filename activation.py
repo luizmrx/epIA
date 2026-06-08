@@ -1,7 +1,9 @@
 """
 activation.py
 
-Funções de ativação utilizadas pela rede neural MLP.
+Implementação das funções de ativação utilizadas pela Rede Neural Perceptron Multicamadas (MLP).
+
+Neste projeto é utilizada a função Sigmoide, responsável por introduzir não linearidade na rede neural e permitir o aprendizado de padrões mais complexos.
 """
 
 import numpy as np
@@ -20,6 +22,9 @@ def sigmoid(x):
                     1
     sigmoid(x) = --------
                  1 + e^-x
+
+    A função sigmoide comprime qualquer valor para
+    o intervalo entre 0 e 1.
     """
     return 1.0 / (1.0 + np.exp(-x))
 
@@ -37,8 +42,10 @@ def sigmoid_derivative(x):
     Fórmula:
         sigmoid'(x) = x * (1 - x)
 
-    Observação:
-        Esta implementação assume que o valor recebido
-        já passou pela função sigmoide.
+    Como a saída da sigmoide já está disponível durante o processo de backpropagation, utiliza-se a forma:
+
+        x * (1 - x)
+
+    onde x representa o valor já calculado pela sigmoide.
     """
     return x * (1.0 - x)

@@ -1,14 +1,24 @@
 """
 train.py
 
-Funções auxiliares para treinamento,
-avaliação e salvamento de resultados.
+Funções auxiliares utilizadas durante o ciclo
+completo de treinamento da Rede Neural MLP.
+
+Responsabilidades:
+
+- Treinamento da rede
+- Avaliação de desempenho
+- Cálculo de métricas
+- Salvamento de pesos
+- Salvamento do histórico de erro
+- Registro dos hiperparâmetros utilizados
 """
 
 import os
 import numpy as np
 
-
+# Diretório utilizado para armazenar todos os
+# arquivos gerados durante os experimentos.
 RESULTS_DIR = "results"
 
 
@@ -57,6 +67,12 @@ def save_initial_weights(mlp):
 
 
 def save_final_weights(mlp):
+    """
+    Salva os pesos e bias após o treinamento.
+
+    Os valores armazenados representam o modelo final
+    aprendido pela rede neural.
+    """
 
     create_results_folder()
 
@@ -90,6 +106,12 @@ def save_final_weights(mlp):
 # ==================================================
 
 def save_error_history(history):
+    """
+    Armazena o erro obtido em cada época.
+
+    Esses dados podem ser utilizados posteriormente
+    para construção de gráficos de aprendizagem.
+    """
 
     create_results_folder()
 
@@ -113,6 +135,16 @@ def train_network(
     epochs=1000,
     patience=50
 ):
+    """
+    Executa o processo completo de treinamento.
+
+    Etapas:
+    1. Salva os pesos iniciais
+    2. Treina a rede
+    3. Salva os pesos finais
+    4. Salva o histórico de erro
+    5. Registra os hiperparâmetros utilizados
+    """
 
     save_initial_weights(mlp)
 
@@ -137,6 +169,12 @@ def train_network(
 # ==================================================
 
 def accuracy(y_true, y_pred):
+    """
+    Calcula a acurácia do modelo.
+
+    A acurácia representa a proporção de amostras
+    classificadas corretamente.
+    """
 
     return np.mean(
         y_true == y_pred
@@ -152,6 +190,18 @@ def confusion_matrix(
     y_pred,
     num_classes
 ):
+    """
+    Constrói a matriz de confusão.
+
+    Linhas:
+        classes reais
+
+    Colunas:
+        classes previstas
+
+    A matriz permite analisar quais classes
+    estão sendo confundidas pela rede.
+    """
 
     matrix = np.zeros(
         (
@@ -187,7 +237,8 @@ def evaluate_network(
         X_test
     )
 
-    # Multi-classe
+    # Problemas com múltiplas classes utilizam
+    # codificação one-hot.
 
     if Y_test.ndim > 1:
 
@@ -260,9 +311,10 @@ def save_confusion_matrix(matrix):
 
 def save_hyperparameters(
     mlp,
-    filename="results/hyperparameters.txt"
+    filename=f"{RESULTS_DIR}/hyperparameters.txt"
 ):
 
+    create_results_folder()
     with open(filename, "w", encoding="utf-8") as f:
 
         f.write("HIPERPARÂMETROS DA REDE\n")

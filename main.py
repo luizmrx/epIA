@@ -81,6 +81,14 @@ def test_logic_gate(
 # ==================================================
 
 def test_hidden_sizes():
+    """
+    Avalia o impacto da quantidade de neurônios
+    na camada oculta sobre a acurácia da rede.
+
+    Objetivo:
+    Determinar uma arquitetura adequada para
+    o dataset de caracteres de Fausett.
+    """
 
     print("\nTESTE DE NEURÔNIOS OCULTOS")
 
@@ -113,6 +121,13 @@ def test_hidden_sizes():
         print(f"Acurácia = {acc:.4f}")
 
 def test_learning_rates():
+    """
+    Compara diferentes taxas de aprendizado.
+
+    Objetivo:
+    Identificar o valor que proporciona
+    melhor convergência durante o treinamento.
+"""
 
     print("\nTESTE DE LEARNING RATE")
 
@@ -151,8 +166,6 @@ def test_fausett():
     print("=" * 50)
 
     X, Y = load_fausett_clean()
-    print(X.shape)
-    print(Y.shape)
 
     mlp = MLP(
         input_size=63,
@@ -257,8 +270,6 @@ def test_character_complete():
     print("=" * 50)
 
     X, Y, _ = load_character_complete()
-    print(X.shape)
-    print(Y.shape)
 
     (
         X_train,
@@ -278,6 +289,8 @@ def test_character_complete():
     print(f"Validação: {len(X_val)}")
     print(f"Teste: {len(X_test)}")
 
+    # Arquitetura final escolhida após os
+    # experimentos de ajuste de hiperparâmetros.
     mlp = MLP(
         input_size=120,
         hidden_size=120,
@@ -437,8 +450,13 @@ def test_character_learning_rates():
 def main():
 
     # --------------------------
-    # Teste de mesa, não utiliza nenhum dataset. Ele simplesmente reproduz exatamente o exemplo do PDF
+    # Validação matemática da implementação.
+    #
+    # Reproduz o exemplo apresentado no material
+    # teórico para verificar Forward Propagation
+    # e Backpropagation.
     # --------------------------
+    
     # test_mesa()
 
     # --------------------------
