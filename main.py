@@ -47,6 +47,8 @@ from train import (
 
 from test_mesa import test_mesa
 
+from plot_results import gerar_todos_os_graficos
+
 
 # ==================================================
 # PORTAS LÓGICAS
@@ -376,6 +378,8 @@ def test_character_hidden_sizes():
         validation_ratio=0.15
     )
 
+    resultados = []
+
     for hidden in [15, 30, 45, 60, 75, 90, 120, 150, 180, 210]:
 
         print(f"\nHidden Size = {hidden}")
@@ -400,9 +404,23 @@ def test_character_hidden_sizes():
             Y_test
         )
 
+        acc = results["accuracy"]
+        resultados.append([
+            hidden,
+            acc
+        ])
+
         print(
             f"Acurácia = "
-            f"{results['accuracy']:.4f}"
+            f"{acc:.4f}"
+        )
+
+        np.savetxt(
+            "results/hidden_size_results.csv",
+            np.array(resultados),
+            delimiter=",",
+            header="hidden_size,accuracy",
+            comments=""
         )
 
 
@@ -428,6 +446,8 @@ def test_character_learning_rates():
         validation_ratio=0.15
     )
 
+    resultados = []
+
     for lr in [0.01, 0.05, 0.1, 0.3, 0.5]:
 
         print(f"\nLearning Rate = {lr}")
@@ -452,9 +472,23 @@ def test_character_learning_rates():
             Y_test
         )
 
+        acc = results["accuracy"]
+        resultados.append([
+            lr,
+            acc
+        ])
+
         print(
             f"Acurácia = "
-            f"{results['accuracy']:.4f}"
+            f"{acc:.4f}"
+        )
+
+        np.savetxt(
+            "results/learning_rate_results.csv",
+            np.array(resultados),
+            delimiter=",",
+            header="learning_rate,accuracy",
+            comments=""
         )
 
 # ==================================================
@@ -512,6 +546,11 @@ def main():
     test_character_complete()
     # test_character_hidden_sizes()
     # test_character_learning_rates()
+
+    # --------------------------
+    # Geração dos gráficos
+    # --------------------------
+    gerar_todos_os_graficos()
 
 
 if __name__ == "__main__":
