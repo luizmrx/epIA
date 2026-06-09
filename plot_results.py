@@ -11,6 +11,9 @@ from pathlib import Path
 
 RESULTS_DIR = Path("results")
 
+def arquivo_existe(caminho):
+    return Path(caminho).exists()
+
 def grafico_erro_epocas():
 
     arquivo = RESULTS_DIR / "error_history.csv"
@@ -44,6 +47,14 @@ def grafico_erro_epocas():
 
 def grafico_acuracia_hidden_size():
 
+    arquivo = RESULTS_DIR / "hidden_size_results.csv"
+
+    if not arquivo.exists():
+        print(
+            "Arquivo hidden_size_results.csv não encontrado."
+        )
+        return
+
     arquivo = (
         RESULTS_DIR /
         "hidden_size_results.csv"
@@ -56,7 +67,7 @@ def grafico_acuracia_hidden_size():
     )
 
     hidden_sizes = dados[:, 0]
-    accuracies = dados[:, 1]
+    accuracies = dados[:, 2]
 
     plt.figure(figsize=(10, 5))
 
@@ -91,6 +102,13 @@ def grafico_acuracia_hidden_size():
     plt.close()
 
 def grafico_acuracia_learning_rate():
+    arquivo = RESULTS_DIR / "learning_rate_results.csv"
+
+    if not arquivo.exists():
+        print(
+            "Arquivo learning_rate_results.csv não encontrado."
+        )
+        return
 
     arquivo = (
         RESULTS_DIR /
@@ -104,7 +122,7 @@ def grafico_acuracia_learning_rate():
     )
 
     learning_rates = dados[:, 0]
-    accuracies = dados[:, 1]
+    accuracies = dados[:, 2]
 
     plt.figure(figsize=(10, 5))
 
@@ -138,6 +156,151 @@ def grafico_acuracia_learning_rate():
 
     plt.close()
 
+def grafico_tempo_hidden_size():
+
+    arquivo = RESULTS_DIR / "hidden_size_results.csv"
+
+    if not arquivo.exists():
+        print(
+            "Arquivo hidden_size_results.csv não encontrado."
+        )
+        return
+
+    dados = np.loadtxt(
+        "results/hidden_size_results.csv",
+        delimiter=",",
+        skiprows=1
+    )
+
+    hidden = dados[:,0]
+    tempo = dados[:,1]
+    accuracies = dados[:,2]
+
+    plt.figure(figsize=(10,5))
+
+    plt.plot(
+        hidden,
+        tempo,
+        marker="o"
+    )
+
+    plt.title(
+        "Tempo de Treinamento x Neurônios Ocultos"
+    )
+
+    plt.xlabel(
+        "Neurônios Ocultos"
+    )
+
+    plt.ylabel(
+        "Tempo (s)"
+    )
+
+    plt.grid(True)
+
+    plt.savefig(
+        "results/time_vs_hidden.png",
+        dpi=300
+    )
+
+    plt.close()
+
+def grafico_tempo_learning_rate():
+
+    arquivo = RESULTS_DIR / "learning_rate_results.csv"
+
+    if not arquivo.exists():
+        print(
+            "Arquivo learning_rate_results.csv não encontrado."
+        )
+        return
+
+    dados = np.loadtxt(
+        "results/learning_rate_results.csv",
+        delimiter=",",
+        skiprows=1
+    )
+
+    lr = dados[:,0]
+    tempo = dados[:,1]
+
+    plt.figure(figsize=(10,5))
+
+    plt.plot(
+        lr,
+        tempo,
+        marker="o"
+    )
+
+    plt.title(
+        "Tempo de Treinamento x Learning Rate"
+    )
+
+    plt.xlabel(
+        "Learning Rate"
+    )
+
+    plt.ylabel(
+        "Tempo (s)"
+    )
+
+    plt.grid(True)
+
+    plt.savefig(
+        "results/time_vs_lr.png",
+        dpi=300
+    )
+
+    plt.close()
+
+def grafico_tempo_epocas():
+
+    arquivo = RESULTS_DIR / "epochs_time.csv"
+
+    if not arquivo.exists():
+        print(
+            "Arquivo epochs_time.csv não encontrado."
+        )
+        return
+
+    dados = np.loadtxt(
+        "results/epochs_time.csv",
+        delimiter=",",
+        skiprows=1
+    )
+
+    epochs = dados[:,0]
+    tempo = dados[:,1]
+
+    plt.figure(figsize=(10,5))
+
+    plt.plot(
+        epochs,
+        tempo,
+        marker="o"
+    )
+
+    plt.title(
+        "Tempo de Treinamento x Épocas"
+    )
+
+    plt.xlabel(
+        "Épocas"
+    )
+
+    plt.ylabel(
+        "Tempo (s)"
+    )
+
+    plt.grid(True)
+
+    plt.savefig(
+        "results/time_vs_epochs.png",
+        dpi=300
+    )
+
+    plt.close()
+
 def gerar_todos_os_graficos():
 
     grafico_erro_epocas()
@@ -146,6 +309,12 @@ def gerar_todos_os_graficos():
 
     grafico_acuracia_learning_rate()
 
+    grafico_tempo_hidden_size()
+
+    grafico_tempo_learning_rate()
+
+    grafico_tempo_epocas()
+
     print(
-        "\nGráficos gerados com sucesso!"
+        "\nTodos os gráficos foram gerados."
     )

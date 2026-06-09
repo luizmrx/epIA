@@ -24,6 +24,7 @@ Executa:
 3. Caracteres Completo
 """
 import numpy as np
+import time
 
 from dataset import (
     load_and,
@@ -77,7 +78,8 @@ def test_logic_gate(
         mlp,
         X,
         Y,
-        epochs=5000
+        epochs=5000,
+        patience=50
     )
 
     predictions = mlp.predict_class(X)
@@ -125,7 +127,8 @@ def test_hidden_sizes():
             mlp,
             X,
             Y,
-            epochs=3000
+            epochs=3000,
+            patience=50
         )
 
         pred = mlp.predict_class(X)
@@ -164,7 +167,8 @@ def test_learning_rates():
             mlp,
             X,
             Y,
-            epochs=3000
+            epochs=3000,
+            patience=50
         )
 
         pred = mlp.predict_class(X)
@@ -194,7 +198,8 @@ def test_fausett():
         mlp,
         X,
         Y,
-        epochs=3000
+        epochs=3000,
+        patience=50
     )
 
     predictions = mlp.predict_class(X)
@@ -227,7 +232,8 @@ def test_fausett_noise():
         mlp,
         X_train,
         Y_train,
-        epochs=3000
+        epochs=3000,
+        patience=50
     )
 
     # Teste com dataset ruidoso
@@ -261,7 +267,8 @@ def test_fausett_noise20():
         mlp,
         X_train,
         Y_train,
-        epochs=3000
+        epochs=3000,
+        patience=50
     )
 
     # Teste com dataset ruidoso
@@ -280,9 +287,61 @@ def test_fausett_noise20():
 # ==================================================
 
 def test_character_complete():
+    """
+    Executa o experimento principal do projeto utilizando
+    o conjunto completo de caracteres.
+
+    Objetivos:
+    - Treinar a arquitetura final selecionada;
+    - Avaliar a capacidade de generalização da rede;
+    - Medir o desempenho em dados não vistos durante
+      o treinamento;
+    - Gerar os arquivos utilizados na análise final.
+
+    Procedimento:
+    1. Carrega o dataset completo de caracteres;
+    2. Divide os dados em treino, validação e teste;
+    3. Treina a MLP utilizando Early Stopping;
+    4. Avalia a acurácia no conjunto de teste;
+    5. Salva os resultados obtidos.
+
+    Divisão dos dados:
+    - 70% Treino
+    - 15% Validação
+    - 15% Teste
+
+    Arquitetura utilizada:
+    120 → 120 → 26
+
+    Onde:
+    - 120 entradas (pixels do caractere);
+    - 120 neurônios na camada oculta;
+    - 26 saídas (letras de A a Z).
+
+    Arquivos gerados:
+    - results/initial_W1.csv
+    - results/initial_W2.csv
+    - results/initial_b1.csv
+    - results/initial_b2.csv
+
+    - results/final_W1.csv
+    - results/final_W2.csv
+    - results/final_b1.csv
+    - results/final_b2.csv
+
+    - results/error_history.csv
+    - results/hyperparameters.txt
+    - results/character_predictions.csv
+    - results/confusion_matrix.csv
+
+    Retorna:
+    - Histórico de erro durante o treinamento;
+    - Acurácia final no conjunto de teste;
+    - Matriz de confusão da classificação.
+    """
 
     print("\n" + "=" * 50)
-    print("TESTANDO CARACTERES COMPLETO")
+    print("EXPERIMENTO PRINCIPAL - DATASET COMPLETO DE CARACTERES")
     print("=" * 50)
 
     X, Y, _ = load_character_complete()
@@ -311,7 +370,7 @@ def test_character_complete():
         input_size=120,
         hidden_size=120,
         output_size=26,
-        learning_rate=0.1
+        learning_rate=0.3
     )
 
     history = train_network(
@@ -357,6 +416,28 @@ def test_character_complete():
     )
 
 def test_character_hidden_sizes():
+    """
+    Avalia a influência da quantidade de neurônios
+    na camada oculta sobre o desempenho da rede neural.
+
+    Objetivos:
+    - Comparar diferentes arquiteturas da MLP;
+    - Verificar o impacto da capacidade de representação
+      da camada oculta;
+    - Avaliar a influência sobre a acurácia final;
+    - Medir o tempo de treinamento para cada configuração.
+
+    Os resultados são armazenados em:
+    results/hidden_size_results.csv
+
+    Estrutura do arquivo:
+    hidden_size,time,accuracy
+
+    Onde:
+    - hidden_size: quantidade de neurônios na camada oculta;
+    - time: tempo total de treinamento em segundos;
+    - accuracy: acurácia obtida no conjunto de teste.
+    """
 
     print("\n" + "=" * 60)
     print("TESTE DE NEURÔNIOS OCULTOS - CHARACTER COMPLETE")
@@ -391,12 +472,20 @@ def test_character_hidden_sizes():
             learning_rate=0.3
         )
 
+        # Inicia o cronômetro
+        inicio = time.perf_counter()
+
         train_network(
             mlp,
             X_train,
             Y_train,
-            epochs=10000
+            epochs=10000,
+            patience=50
         )
+
+        # Finaliza o cronômetro
+        fim = time.perf_counter()
+        tempo_execucao = fim - inicio
 
         results = evaluate_network(
             mlp,
@@ -407,6 +496,7 @@ def test_character_hidden_sizes():
         acc = results["accuracy"]
         resultados.append([
             hidden,
+            tempo_execucao,
             acc
         ])
 
@@ -415,16 +505,37 @@ def test_character_hidden_sizes():
             f"{acc:.4f}"
         )
 
-        np.savetxt(
-            "results/hidden_size_results.csv",
-            np.array(resultados),
-            delimiter=",",
-            header="hidden_size,accuracy",
-            comments=""
-        )
+    np.savetxt(
+        "results/hidden_size_results.csv",
+        np.array(resultados),
+        delimiter=",",
+        header="hidden_size,time,accuracy",
+        comments=""
+    )
 
 
 def test_character_learning_rates():
+    """
+    Avalia a influência da taxa de aprendizado
+    (Learning Rate) sobre o desempenho da rede neural.
+
+    Objetivos:
+    - Comparar diferentes velocidades de aprendizado;
+    - Verificar o impacto do Learning Rate na convergência;
+    - Avaliar o efeito sobre a acurácia final;
+    - Medir o tempo de treinamento para cada configuração.
+
+    Os resultados são armazenados em:
+    results/learning_rate_results.csv
+
+    Estrutura do arquivo:
+    learning_rate,time,accuracy
+
+    Onde:
+    - learning_rate: taxa de aprendizado utilizada;
+    - time: tempo total de treinamento em segundos;
+    - ac
+    """
 
     print("\n" + "=" * 60)
     print("TESTE DE LEARNING RATE - CHARACTER COMPLETE")
@@ -459,12 +570,20 @@ def test_character_learning_rates():
             learning_rate=lr
         )
 
+        # Inicia o cronômetro
+        inicio = time.perf_counter()
+
         train_network(
             mlp,
             X_train,
             Y_train,
-            epochs=10000
+            epochs=10000,
+            patience=50
         )
+
+        # Finaliza o cronômetro
+        fim = time.perf_counter()
+        tempo_execucao = fim - inicio
 
         results = evaluate_network(
             mlp,
@@ -475,6 +594,7 @@ def test_character_learning_rates():
         acc = results["accuracy"]
         resultados.append([
             lr,
+            tempo_execucao,
             acc
         ])
 
@@ -483,13 +603,108 @@ def test_character_learning_rates():
             f"{acc:.4f}"
         )
 
-        np.savetxt(
-            "results/learning_rate_results.csv",
-            np.array(resultados),
-            delimiter=",",
-            header="learning_rate,accuracy",
-            comments=""
+    np.savetxt(
+        "results/learning_rate_results.csv",
+        np.array(resultados),
+        delimiter=",",
+        header="learning_rate,time,accuracy",
+        comments=""
+    )
+
+def test_character_epochs():
+    """
+    Avalia a influência da quantidade de épocas
+    sobre o desempenho da rede neural.
+
+    Objetivos:
+    - Medir o tempo de treinamento;
+    - Avaliar a evolução da acurácia;
+    - Verificar se o aumento do número de épocas
+      continua produzindo ganhos significativos.
+
+    Os resultados são armazenados em:
+    results/epochs_time.csv
+    """
+
+    print("\n" + "=" * 60)
+    print("ANÁLISE DA INFLUÊNCIA DO NÚMERO DE ÉPOCAS")
+    print("=" * 60)
+
+    X, Y, _ = load_character_complete()
+
+    (
+        X_train,
+        Y_train,
+        X_val,
+        Y_val,
+        X_test,
+        Y_test
+    ) = train_validation_test_split(
+        X,
+        Y,
+        train_ratio=0.70,
+        validation_ratio=0.15
+    )
+
+    resultados = []
+
+    for epochs in [
+        1000,
+        3000,
+        5000,
+        10000,
+        20000,
+        50000
+    ]:
+
+        print(f"\nEpochs = {epochs}")
+
+        mlp = MLP(
+            input_size=120,
+            hidden_size=120,
+            output_size=26,
+            learning_rate=0.3
         )
+
+        inicio = time.perf_counter()
+
+        train_network(
+            mlp,
+            X_train,
+            Y_train,
+            epochs=epochs,
+            patience=50
+        )
+
+        fim = time.perf_counter()
+
+        tempo_execucao = fim - inicio
+
+        results = evaluate_network(
+            mlp,
+            X_test,
+            Y_test
+        )
+
+        acc = results["accuracy"]
+
+        resultados.append([
+            epochs,
+            tempo_execucao,
+            acc
+        ])
+
+        print(
+            f"Acurácia = {acc:.4f}"
+        )
+
+    np.savetxt(
+        "results/epochs_time.csv",
+        np.array(resultados),
+        delimiter=",",
+        header="epochs,time,accuracy",
+        comments=""
+    )
 
 # ==================================================
 # MAIN
@@ -543,9 +758,10 @@ def main():
     # Caracteres Completo
     # --------------------------
 
+    test_character_hidden_sizes()
+    test_character_learning_rates()
+    test_character_epochs()
     test_character_complete()
-    # test_character_hidden_sizes()
-    # test_character_learning_rates()
 
     # --------------------------
     # Geração dos gráficos
